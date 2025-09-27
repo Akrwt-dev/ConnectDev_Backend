@@ -1,0 +1,21 @@
+{
+  "name": "dev_tinder",
+  "version": "1.0.0",
+  "description": "Creating a website where the developer can meet and build projects",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "Java",
+    "Script"
+  ],
+  "author": "Akash Rawat",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
