@@ -1,25 +1,24 @@
 const express = require("express");
 const app = express();
+const { checkAdmin, checkUser } = require("../middlewares/auth.js");
 
-// here order is very importent 
-app.use("/test/2", (req, res) => {
-  res.send("this is the second test page");
+app.use("/user", checkUser);
+
+app.use("/user/login", (req, res) => {
+  res.send("user has successfully login");
 });
 
-app.use("/test", (req, res) => {
-  res.send("First Test page");
-});
-// this will never show because of "/test" 
-app.use("/test/3", (req, res) => {
-  res.send("Third Test page");
+app.get("/user/data", (req, res) => {
+  res.send("Here is user data");
 });
 
-app.use("/user", (req, res) => {
-  res.send("User page");
-});
+app.use("/admin", checkAdmin);
 
-app.use("/", (req, res) => {
-  res.send("Home page");
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All data sended");
+});
+app.get("/admin/deleteUser", (req, res) => {
+  res.send("user deleted");
 });
 
 app.listen(4000, () => {
