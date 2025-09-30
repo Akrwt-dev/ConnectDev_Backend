@@ -1,26 +1,23 @@
 const express = require("express");
 const app = express();
-const { checkAdmin, checkUser } = require("../middlewares/auth.js");
+const connectDB = require("./config/database.js");
+const User = require("./modules/user.js");
 
-app.use("/user", checkUser);
+app.use(express.json())
 
-app.use("/user/login", (req, res) => {
-  res.send("user has successfully login");
+app.post("/signup", async (req, res) => {
+  const user = new User(req.body);
+  await user.save();
+  res.send("data added to dataBase");
 });
 
-app.get("/user/data", (req, res) => {
-  res.send("Here is user data");
-});
-
-app.use("/admin", checkAdmin);
-
-app.get("/admin/getAllData", (req, res) => {
-  res.send("All data sended");
-});
-app.get("/admin/deleteUser", (req, res) => {
-  res.send("user deleted");
-});
-
-app.listen(4000, () => {
-  console.log("Server running on port 4000");
-});
+connectDB()
+  .then(() => {
+    console.log("DB connected successfully");
+    app.listen(4000, () => {
+      console.log("Server running on port 4000");
+    });
+  })
+  .catch((err) => {
+    console.error("DB is not connected, something went wrong:", err);
+  });
