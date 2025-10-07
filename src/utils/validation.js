@@ -1,7 +1,7 @@
 const validator = require("validator");
 
 const ValidatSignUpData = (req) => {
-  const { firstName, lastName, emailId, password } = req.body;
+  const { firstName, lastName, emailId, password} = req.body;
   if (firstName.lengh == 0 || lastName.length == 0) {
     throw new Error("Please Enter the Name");
   } else if (firstName.lengh < 2 || firstName.length > 50) {
@@ -12,7 +12,7 @@ const ValidatSignUpData = (req) => {
     throw new Error("Invlaid Email");
   } else if (!validator.isStrongPassword(password)) {
     throw new Error("Enter a strong password");
-  }
+  } 
 };
 const updateData = (req) => {
   try {
@@ -34,5 +34,7 @@ const updateData = (req) => {
     throw new Error("You cannot update this");
   }
 };
+
+
 
 module.exports = { ValidatSignUpData, updateData };

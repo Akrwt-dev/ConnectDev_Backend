@@ -15,6 +15,12 @@ const userSchema = new mongoose.Schema({
     password : {
        type : String 
     },
+    currentPassword : {
+       type : String 
+    },
+    newPassword : {
+       type : String 
+    },
     gender : {
         type : String
     },
