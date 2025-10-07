@@ -14,5 +14,25 @@ const ValidatSignUpData = (req) => {
     throw new Error("Enter a strong password");
   }
 };
+const updateData = (req) => {
+  try {
+    const validUpdates = [
+      "firstName",
+      "lastName",
+      "emailId",
+      "gender",
+      "age",
+      "skill",
+      "photoURL",
+      "about",
+    ];
 
-module.exports = { ValidatSignUpData };
+    const isEditAllowed = Object.keys(req.body).every(e => validUpdates.includes(e));
+
+    return isEditAllowed;
+  } catch {
+    throw new Error("You cannot update this");
+  }
+};
+
+module.exports = { ValidatSignUpData, updateData };
