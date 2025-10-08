@@ -2,41 +2,7 @@ const express = require("express");
 const requestRouter = express.Router();
 const User = require("../modules/user.js");
 const { userAuth } = require("../../middlewares/auth.js");
-
-requestRouter.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
-  const data = req.body;
-  try {
-    const ALLOW_UPDATE = [
-      "userId",
-      "photoURL",
-      "about",
-      "gender",
-      "age",
-      "skills",
-    ];
-    const isUpdateAllowed = Object.keys(data).every((k) =>
-      ALLOW_UPDATE.includes(k)
-    );
-    if (!isUpdateAllowed) {
-      throw new Error("you can not update is ");
-    }
-    const dataToUpdate = await User.findByIdAndUpdate({ _id: userId }, data);
-    res.send("user updated successfully");
-  } catch (err) {
-    res.status(400).send("User not found" + err);
-  }
-});
-
-requestRouter.delete("/user", async (req, res) => {
-  const userId = req.body.userId;
-  try {
-    const seleteUser = await User.findByIdAndDelete(userId);
-    res.send("User Deleted Successfully");
-  } catch (err) {
-    res.status(400).send("User not found" + err);
-  }
-});
+const connectionRequest  = require("../modules/connectionRequest.js");
 
 requestRouter.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
@@ -52,5 +18,49 @@ requestRouter.get("/user", async (req, res) => {
     res.status(400).send("Something went wrong" + err);
   }
 });
+
+requestRouter.post(
+  "/request/send/:status/:userId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const toUserId = req.params.userId;
+      const fromUserId = req.user._id;
+      const status = req.params.status;
+
+      const allowedStatus = ["ignore", "interested"];
+
+      if (!allowedStatus.includes(status)) {
+        return res.send("Invalid Connection Request");
+      }
+      const isReciverPresent = await User.findById(toUserId);
+      if (!isReciverPresent) {
+        throw new Error("User not found");
+      }
+      const isDuplicateReq = await connectionRequest.findOne({
+        $or: [
+          { toUserId: toUserId, fromUserId: fromUserId },
+          { toUserId: fromUserId, fromUserId: toUserId },
+        ],
+      });
+
+      if (isDuplicateReq) {
+        throw new Error("Request already send");
+      }
+      const sendRequest = new connectionRequest({
+        toUserId,
+        fromUserId,
+        status,
+      });
+      const data = await sendRequest.save();
+      res.json({
+        message: "sended the connection req",
+        data,
+      });
+    } catch (err) {
+      res.status(400).send("Something went wrong" + err);
+    }
+  }
+);
 
 module.exports = requestRouter;
