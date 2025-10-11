@@ -63,4 +63,31 @@ requestRouter.post(
   }
 );
 
+requestRouter.post("/request/received/:status/:requestId",userAuth,async(req,res)=>{
+  const logginUser = req.user;
+  const {status,requestId} = req.params;
+  console.log(logginUser._id)
+
+
+  const allowedStatus = [ "accepted", "rejected"]
+  if(!allowedStatus.includes(status)){
+    return res.status(400).send("Invalid Status")
+  }
+  const findingInDb = await connectionRequest.findOne({
+    _id : requestId,
+    toUserId : logginUser._id,
+    status : "interested",
+  })
+  if(!findingInDb){
+    throw new Error("Failed to send the connection request . Request Not Found!!!")
+  }
+  console.log(findingInDb.status)
+  findingInDb.status = status;
+  console.log(status)
+  const data = findingInDb.save();
+  res.json({
+    data : findingInDb
+  })
+})
+
 module.exports = requestRouter;
