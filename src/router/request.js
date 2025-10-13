@@ -63,7 +63,7 @@ requestRouter.post(
   }
 );
 
-requestRouter.post("/request/received/:status/:requestId",userAuth,async(req,res)=>{
+requestRouter.post("/request/send/:status/:requestId",userAuth,async(req,res)=>{
   const logginUser = req.user;
   const {status,requestId} = req.params;
   console.log(logginUser._id)
