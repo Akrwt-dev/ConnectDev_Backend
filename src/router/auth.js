@@ -8,23 +8,22 @@ const { userAuth } = require("../../middlewares/auth.js");
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-    const user = await User.findOne({ emailId: emailId });
+    const user = await User.findOne({ emailId });
     if (!user) {
       throw new Error("Invalid Details");
     }
-    const IsUserCorrect = await user.validatePassword(password);
-    if (IsUserCorrect) {
-      // Create a Token
-      const token = await user.getJWT();
 
-      // Adding the token to cookie and sending the response back to the user
-      res.cookie("token", token);
-      res.send("token sended");
-    } else {
+    const IsUserCorrect = await user.validatePassword(password);
+
+    if (!IsUserCorrect) {
       throw new Error("Invalid Details");
     }
+
+    const token = await user.getJWT();
+    res.cookie("token", token, { httpOnly: true });
+    res.send(user);
   } catch (err) {
-    res.status(400).send("Something went wrong" + err);
+    return res.status(401).send("Something went wrong: " + err.message);
   }
 });
 
@@ -48,9 +47,9 @@ authRouter.post("/signup", async (req, res) => {
     res.status(404).send("ERROR" + err);
   }
 });
-authRouter.post("/logout", async(req,res)=>{
-  res.cookie("token",null,{ expires: new Date(Date.now())})
-  res.send("You have successfully log_out")
-})
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.send("You have successfully log_out");
+});
 
 module.exports = authRouter;
