@@ -1,50 +1,57 @@
+// router/profile.js
 const express = require("express");
-const { updateData } = require("../utils/validation.js");
-const profileRouter = express.Router();
-const { userAuth } = require("../../middlewares/auth.js");
 const bcrypt = require("bcrypt");
+const { updateData } = require("../utils/validation.js");
+const { userAuth } = require("../../middlewares/auth.js");
 
+const profileRouter = express.Router();
+
+// View profile
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
-    const user = req.user;
-    res.send(user);
+    res.json(req.user);
   } catch (err) {
-    res.status(400).send("Something went wrong" + err);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
-profileRouter.patch("/profile/edit", userAuth, (req, res) => {
+
+// Edit profile
+profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
-    if (!updateData(req)) {
-      throw new Error("can not update this");
-    }
+    if (!updateData(req)) throw new Error("Cannot update this");
+
     const loginUser = req.user;
-    console.log(loginUser);
-    Object.keys(req.body).every((key) => (loginUser[key] = req.body[key]));
+    Object.keys(req.body).forEach((key) => {
+      loginUser[key] = req.body[key];
+    });
+
+    await loginUser.save();
+
     res.json({
-      message: `data updated successfully`,
+      message: "Data updated successfully",
       data: loginUser,
     });
   } catch (err) {
-    res.status(400).send("Something went wrong" + err);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 
+// Change password
 profileRouter.patch("/profile/changePassword", userAuth, async (req, res) => {
   try {
-    const { currentPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
     const hash = req.user.password;
+
     const isPasswordCorrect = await bcrypt.compare(currentPassword, hash);
-    if (!isPasswordCorrect) {
-      throw new Error("Wrong Password !");
-    }
-    const { newPassword } = req.body;
+    if (!isPasswordCorrect) throw new Error("Wrong Password!");
+
     const hashPassword = await bcrypt.hash(newPassword, 10);
-    console.log(hashPassword)
     req.user.password = hashPassword;
     await req.user.save();
-    res.send("Password Updated Successfully");
+
+    res.json({ message: "Password updated successfully" });
   } catch (err) {
-    res.status(400).send("Something went wrong" + err);
+    res.status(400).send("Something went wrong: " + err.message);
   }
 });
 
