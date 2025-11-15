@@ -3,7 +3,7 @@ const { userAuth } = require("../../middlewares/auth");
 const connectionRequest = require("../modules/connectionRequest");
 const User = require("../modules/user");
 const userRouter = express.Router();
-const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
+const USER_SAFE_DATA = "firstName lastName photoURL age gender about skills";
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {
     const loginUser = req.user;
@@ -74,7 +74,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       { _id: { $ne: logginUser._id } },
     ],
   })
-    .select("firstName lastName")
+    .select("firstName lastName gender age skills photoURL about")
     .skip(skip)
     .limit(limit);
   res.send(user);

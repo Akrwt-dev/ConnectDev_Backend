@@ -69,7 +69,7 @@ requestRouter.post(
   async (req, res) => {
     const logginUser = req.user;
     const { status, requestId } = req.params;
-    console.log(logginUser._id);
+   
 
     const allowedStatus = ["accepted", "rejected"];
     if (!allowedStatus.includes(status)) {
@@ -85,9 +85,7 @@ requestRouter.post(
         "Failed to send the connection request . Request Not Found!!!"
       );
     }
-    console.log(findingInDb.status);
     findingInDb.status = status;
-    console.log(status);
     const data = findingInDb.save();
     res.json({
       message: "Connection request " + status,
