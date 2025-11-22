@@ -41,8 +41,10 @@ authRouter.post("/signup", async (req, res) => {
       emailId,
       password: hashPassword,
     });
-    await user.save();
-    res.send("data added to dataBase");
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
+    res.cookie("token", token, { httpOnly: true });
+    res.json({ message: "data added to dataBase", data: savedUser });
   } catch (err) {
     res.status(404).send("ERROR" + err);
   }
