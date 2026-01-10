@@ -4,12 +4,17 @@ const app = express();
 const connectDB = require("./config/database.js");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const http = require("http")
+const initializeSocket = require("./utils/socket.js")
 
 // Routers
 const authRouter = require("./router/auth.js");
 const profileRouter = require("./router/profile.js");
 const requestRouter = require("./router/request.js");
 const userRouter = require("./router/userReq.js");
+const chatRouter = require("./router/chat.js");
+
+
 
 // -----------------------------
 // CORS configuration
@@ -33,6 +38,11 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter)
+
+
+const server = http.createServer(app)
+initializeSocket(server);
 
 // -----------------------------
 // Database & Server
@@ -40,7 +50,7 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("DB connected successfully");
-    app.listen(4000, () => {
+    server.listen(4000,"0.0.0.0", () => {
       console.log("Server running on port 4000");
     });
   })

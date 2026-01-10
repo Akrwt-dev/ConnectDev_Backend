@@ -40,9 +40,9 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     const data = connection.map((row) => {
       if (row.fromUserId._id.toString() === logginUser._id.toString()) {
         return row.toUserId;
-      } else {
+      } 
         return row.fromUserId;
-      }
+      
     });
     res.json({
       data,

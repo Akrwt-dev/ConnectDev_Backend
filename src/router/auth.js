@@ -8,7 +8,8 @@ const { userAuth } = require("../../middlewares/auth.js");
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
-    const user = await User.findOne({ emailId });
+
+    const user = await User.findOne({ emailId: emailId });
     if (!user) {
       throw new Error("Invalid Details");
     }
@@ -20,7 +21,7 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const token = await user.getJWT();
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {  expires: new Date(Date.now() + 8 * 3600000), });
     res.send(user);
   } catch (err) {
     return res.status(401).send("Something went wrong: " + err.message);
