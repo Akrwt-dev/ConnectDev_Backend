@@ -5,6 +5,13 @@ const { ValidatSignUpData } = require("../utils/validation.js");
 const bcrypt = require("bcrypt");
 const { userAuth } = require("../../middlewares/auth.js");
 
+const isProduction = process.env.NODE_ENV === "production";
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
+};
+
 authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
@@ -21,7 +28,10 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const token = await user.getJWT();
-    res.cookie("token", token, {  expires: new Date(Date.now() + 8 * 3600000), });
+    res.cookie("token", token, {
+      ...cookieOptions,
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
     res.send(user);
   } catch (err) {
     return res.status(401).send("Something went wrong: " + err.message);
@@ -44,14 +54,17 @@ authRouter.post("/signup", async (req, res) => {
     });
     const savedUser = await user.save();
     const token = await savedUser.getJWT();
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, cookieOptions);
     res.json({ message: "data added to dataBase", data: savedUser });
   } catch (err) {
     res.status(404).send("ERROR" + err);
   }
 });
 authRouter.post("/logout", async (req, res) => {
-  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.cookie("token", null, {
+    ...cookieOptions,
+    expires: new Date(Date.now()),
+  });
   res.send("You have successfully log_out");
 });
 
