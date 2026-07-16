@@ -3,7 +3,7 @@ const { Chat } = require("../modules/chat");
 
 const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:5173")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
 const initialseRequest = (server) => {
